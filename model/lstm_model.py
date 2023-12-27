@@ -15,6 +15,10 @@ look_back = 3
 epochs = 1
 
 
+def get_plot():
+    return plt
+
+
 class LSTMModel:
 
     def __init__(self, symbol, data):
@@ -46,8 +50,8 @@ class LSTMModel:
     def generate_test_train(self):
         train_size = int(len(self.scaled_data) * train_test_split)
         train, test = self.scaled_data[0:train_size], self.scaled_data[train_size:len(self.scaled_data)]
-        train_x, train_y = create_dataset(train.values)
-        test_x, test_y = create_dataset(test.values)
+        train_x, train_y = create_dataset(train.values, look_back)
+        test_x, test_y = create_dataset(test.values, look_back)
         self.train_x = train_x
         self.train_y = train_y
         self.test_x = test_x

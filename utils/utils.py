@@ -2,8 +2,6 @@ import numpy as np
 import pandas as pd
 from datetime import datetime, timedelta, timezone
 
-from model.lstm_model import look_back
-
 
 def concatenate_dataframes(changed_rows, not_common_df):
     """
@@ -55,7 +53,7 @@ def generate_close_timestamps(start_date, end_date_str, step_hours=24):
     return timestamps
 
 
-def create_dataset(dataset):
+def create_dataset(dataset, look_back):
     data_x, data_y = [], []
     for i in range(len(dataset) - look_back):
         a = dataset[i:(i + look_back), :]
