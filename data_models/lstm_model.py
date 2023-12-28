@@ -104,8 +104,7 @@ class LSTMModel:
 
         # Save the DataFrame to a CSV file
         result_df.to_csv(f"data_output/{self.symbol}_test_train_prediction.csv", index=False)
-        if is_plot:
-            self.plot_model(train_predict, test_predict)
+        self.plot_model(train_predict, test_predict)
 
     def scale_data(self):
         data = self.data.copy()
@@ -162,6 +161,10 @@ class LSTMModel:
         data.rename(columns={'Close': 'Actual'}, inplace=True)
         data[['Time', 'Prediction', 'Actual']].to_csv(f"data_output/{self.symbol}_oot_prediction.csv")
 
+        oot_score = np.sqrt(mean_squared_error(data['Actual'], data['Prediction']))
+        print("OOT RMSE: {:.2f}".format(oot_score))
+
         self.plot.add_data_series(data['Time'], data['Prediction'], 'Predicted (Rolling)', 'purple', 'dashed')
         self.plot.add_data_series(data['Time'], data['Actual'], 'Actual (Rolling)', 'black')
-        self.plot.show_plot(self.symbol)
+        if is_plot:
+            self.plot.show_plot(self.symbol)

@@ -6,7 +6,7 @@ import pandas as pd
 from tensorflow.keras.models import load_model
 from utils.utils import str_list
 from utils.utils import move_column_to_last
-from config import model_features, model_target, days_to_predict, look_back, is_plot
+from config import model_features, model_target, days_to_predict, look_back, constants
 
 
 class PredictModel:
@@ -49,8 +49,7 @@ class PredictModel:
         self.dates_iterations = generate_close_timestamps(start_date, predict_to_date)
 
     def plot_predictions(self):
-        if is_plot:
-            self.train_model.plot_predictions_train(self.result_df)
+        self.train_model.plot_predictions_train(self.result_df)
 
     def preprocess_scale_tail(self, predict_df):
         data_preprocessor = DataPreprocessor(self.symbol, predict_df)
@@ -73,7 +72,7 @@ class PredictModel:
             new_data['Date'] = date
 
             predict_df = pd.concat([predict_df, new_data], ignore_index=True)
-            predict_df = predict_df[model_features]
+            predict_df = predict_df[model_features+constants]
             features.append(model_data)
             prediction.append(oot_predict)
 
