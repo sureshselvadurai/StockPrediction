@@ -1,21 +1,21 @@
 import pandas as pd
-import yfinance as yf
 import os
-
-data_folder = 'stock_data'
+from utils.utils import get_stock_data_yf
 
 
 def download_stock_data(stock_symbols, start_date, end_date):
     stock_data = {}
     for symbol in stock_symbols:
 
-        file_path = f"{data_folder}/{symbol}_data.csv"
+        file_path = f"data_output/{symbol}_data.csv"
 
         if os.path.exists(file_path):
             data = pd.read_csv(file_path, parse_dates=True)
         else:
-            stock = yf.Ticker(symbol)
-            data = stock.history(start=start_date, end=end_date)
+            data = get_stock_data_yf(end_date, start_date, symbol)
+            data = data.reset_index()
+            data = data.rename(columns={'index': 'Date'})
+            data['Date'] = data['Date'].astype(str)
             data.to_csv(file_path)
 
         stock_data[symbol] = data
@@ -32,7 +32,7 @@ class DataLoader:
         # Load stock symbols from CSV file
         stock_symbols = self.load_stock_symbols()
 
-        # Download stock data using yfinance
+        # Download stock data_processor using yfinance
         stock_data = download_stock_data(stock_symbols, start_date, end_date)
 
         return stock_data

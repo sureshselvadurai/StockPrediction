@@ -4,24 +4,17 @@ from tensorflow.keras.layers import LSTM, Dense
 from sklearn.preprocessing import MinMaxScaler, LabelEncoder
 from sklearn.metrics import mean_squared_error
 import pandas as pd
-from matplotlib import pyplot as plt
-from utils.utils import create_dataset
-
-model_features = ['Close']
-model_target = 'Close'
-constants = ['Date']
-train_test_split = 0.8
-look_back = 3
-epochs = 1
-
-
-def get_plot():
-    return plt
+import os
+from utils.utils import create_dataset, move_column_to_last
+from utils.plot_data import Plot
+from utils.utils import get_stock_data_yf
+from config import model_features, model_target, train_test_split, look_back, epochs, is_plot
 
 
 class LSTMModel:
 
     def __init__(self, symbol, data):
+        self.plot = None
         self.scaled_data = None
         self.test_y = None
         self.test_x = None
@@ -33,7 +26,10 @@ class LSTMModel:
         self.symbol = symbol
         self.init_model()
         self.label_encoder = LabelEncoder()
-        self.scaler = MinMaxScaler(feature_range=(0, 1))
+        scale_key = {}
+        for feature in model_features:
+            scale_key[feature] = MinMaxScaler(feature_range=(0, 1))
+        self.scaler = scale_key
 
     def get_model(self):
         return self.model
@@ -59,7 +55,7 @@ class LSTMModel:
 
     def fit_model(self):
         self.model.fit(self.train_x, self.train_y, epochs=epochs, batch_size=1, verbose=2)
-        self.model.save(f"generated_models/{self.symbol}_lstm_model.keras")
+        self.model.save(f"data_models/{self.symbol}_lstm_model.keras")
 
     def init_model(self):
         model = Sequential()
@@ -73,18 +69,17 @@ class LSTMModel:
         test_predict = self.model.predict(self.test_x)
 
         # Invert predictions to original scale
-        train_predict = self.scaler.inverse_transform(
-            np.hstack((self.train_x[:, -1, :-1], train_predict.reshape(-1, 1))))
-        train_y = self.scaler.inverse_transform(np.hstack((self.train_x[:, -1, :-1], self.train_y.reshape(-1, 1))))
+        train_predict = self.scaler[model_target].inverse_transform(train_predict.reshape(-1, 1))
+        train_y = self.scaler[model_target].inverse_transform(self.train_y.reshape(-1, 1))
 
-        test_predict = self.scaler.inverse_transform(np.hstack((self.test_x[:, -1, :-1], test_predict.reshape(-1, 1))))
-        test_y = self.scaler.inverse_transform(np.hstack((self.test_x[:, -1, :-1], self.test_y.reshape(-1, 1))))
+        test_predict = self.scaler[model_target].inverse_transform(test_predict.reshape(-1, 1))
+        test_y = self.scaler[model_target].inverse_transform(self.test_y.reshape(-1, 1))
 
-        # Calculate RMSE for training data
+        # Calculate RMSE for training data_processor
         train_score = np.sqrt(mean_squared_error(train_y[:, -1], train_predict[:, -1]))
         print("Train RMSE: {:.2f}".format(train_score))
 
-        # Calculate RMSE for testing data
+        # Calculate RMSE for testing data_processor
         test_score = np.sqrt(mean_squared_error(test_y[:, -1], test_predict[:, -1]))
         print("Test RMSE: {:.2f}".format(test_score))
 
@@ -93,13 +88,13 @@ class LSTMModel:
         train_df = pd.DataFrame({'Tag': 'Train',
                                  'Prediction': train_predict[:, -1],
                                  'Actual': train_y[:, -1],
-                                 'Features': self.train_x[:, -1, :].tolist(),
+                                 'Features': self.train_x[:, :, :].tolist(),
                                  'Time': self.data['Date'][look_back - 1:look_back - 1 + len(train_y)]})
 
         test_df = pd.DataFrame({'Tag': 'Test',
                                 'Prediction': test_predict[:, -1],
                                 'Actual': test_y[:, -1],
-                                'Features': self.test_x[:, -1, :].tolist(),
+                                'Features': self.test_x[:, :, :].tolist(),
                                 'Time': self.data['Date'][
                                         look_back - 1 + len(train_y) + look_back - 1:look_back - 1 + len(
                                             train_y) + look_back - 1 + len(test_y)]})
@@ -108,8 +103,9 @@ class LSTMModel:
         result_df = pd.concat([train_df, test_df])
 
         # Save the DataFrame to a CSV file
-        result_df.to_csv(f"model_predictions/{self.symbol}_prediction.csv", index=False)
-        # self.plot_model(train_predict, test_predict)
+        result_df.to_csv(f"data_output/{self.symbol}_test_train_prediction.csv", index=False)
+        if is_plot:
+            self.plot_model(train_predict, test_predict)
 
     def scale_data(self):
         data = self.data.copy()
@@ -117,34 +113,55 @@ class LSTMModel:
             if data[column].dtype == 'O':
                 data[column] = self.label_encoder.fit_transform(data[column])
 
-        data[model_features] = self.scaler.fit_transform(data[model_features])
         model_columns = np.concatenate((model_features, [model_target]))[
             np.unique(np.concatenate((model_features, [model_target])), return_index=True)[1]]
         data = data[model_columns]
+        data = move_column_to_last(data, model_target)
+        for feature in model_features:
+            data[feature] = self.scaler[feature].fit_transform(data[feature].values.reshape(-1, 1))
         self.scaled_data = data.dropna()
 
     def plot_model(self, train_predict, test_predict):
-        # Plotting training and testing data on the same plot
+        # Plotting training and testing data_processor on the same plot
+        self.plot = Plot()
 
-        plt.figure(figsize=(15, 9))
         train_dates = self.data['Date'][look_back:look_back + len(train_predict)]
         actual_train = self.data['Close'][look_back:look_back + len(train_predict)].values.reshape(-1, 1)
         predicted_train = train_predict[:, -1].reshape(-1, 1)
-        plt.plot(train_dates, actual_train, label='Actual (Train)', color='blue')
-        plt.plot(train_dates, predicted_train, label='Predicted (Train)', linestyle='dashed', color='orange')
+
+        self.plot.add_data_series(train_dates, actual_train, 'Actual (Train)', 'blue')
+        self.plot.add_data_series(train_dates, predicted_train, 'Predicted (Train)', 'orange', 'dashed')
 
         test_dates = self.data['Date'][look_back + len(train_predict) + look_back - 1:look_back + len(
             train_predict) + look_back - 1 + len(test_predict)]
         actual_test = self.data['Close'][look_back + len(train_predict) + look_back - 1:look_back + len(
             train_predict) + look_back - 1 + len(test_predict)].values.reshape(-1, 1)
         predicted_test = test_predict[:, -1].reshape(-1, 1)
-        plt.plot(test_dates, actual_test, label='Actual (Test)', color='green')
-        plt.plot(test_dates, predicted_test, label='Predicted (Test)', linestyle='dashed', color='red')
 
-        plt.title(f'{self.symbol} LSTM Model Performance')
-        plt.xlabel('Date')
-        plt.ylabel('Stock Price')
-        plt.legend()
+        self.plot.add_data_series(test_dates, actual_test, 'Actual (Test)', 'green')
+        self.plot.add_data_series(test_dates, predicted_test, 'Predicted (Test)', 'red', 'dashed')
 
-        plt.tight_layout()
-        plt.show()
+    def plot_predictions_train(self, data):
+
+        data['Timestamp'] = pd.to_datetime(data['Time'], format='%Y-%m-%d %H:%M:%S%z')
+
+        file_path = f"data_output/{self.symbol}_data_oot.csv"
+
+        if os.path.exists(file_path):
+            actual_data = pd.read_csv(file_path, parse_dates=True)
+        else:
+            actual_data = get_stock_data_yf(data['Timestamp'].max(), data['Timestamp'].min(), self.symbol)
+            actual_data.to_csv(file_path)
+            actual_data = actual_data.reset_index()
+            actual_data = actual_data.rename(columns={'index': 'Date'})
+            actual_data['Date'] = actual_data['Date'].astype(str)
+
+        actual_data['Timestamp'] = pd.to_datetime(actual_data['Date'], format='%Y-%m-%d %H:%M:%S%z')
+        data = pd.merge(data, actual_data[['Timestamp', 'Close']], how='inner', left_on='Timestamp',
+                        right_on='Timestamp')
+        data.rename(columns={'Close': 'Actual'}, inplace=True)
+        data[['Time', 'Prediction', 'Actual']].to_csv(f"data_output/{self.symbol}_oot_prediction.csv")
+
+        self.plot.add_data_series(data['Time'], data['Prediction'], 'Predicted (Rolling)', 'purple', 'dashed')
+        self.plot.add_data_series(data['Time'], data['Actual'], 'Actual (Rolling)', 'black')
+        self.plot.show_plot(self.symbol)

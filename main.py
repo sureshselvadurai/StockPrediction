@@ -1,13 +1,13 @@
-from data.data_loader import DataLoader
-from preprocessing.data_preprocessor import DataPreprocessor
-from model.lstm_model import LSTMModel
-from predict_model.model_predictor import PredictModel
+from data_processor.data_loader import DataLoader
+from data_processor.data_preprocessor import DataPreprocessor
+from data_models.lstm_model import LSTMModel
+from data_models.model_predictor import PredictModel
 
 
 def main():
-    csv_file = "data_files/stocks.csv"
+    csv_file = "data/stocks.csv"
     start_date = "2023-01-01"  # Start date
-    end_date = "2023-12-31"  # End date
+    end_date = "2023-12-10"  # End date
 
     data_loader = DataLoader(csv_file)
     stock_data = data_loader.load_data(start_date, end_date)

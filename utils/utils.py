@@ -2,6 +2,8 @@ import numpy as np
 import pandas as pd
 from datetime import datetime, timedelta, timezone
 
+import yfinance as yf
+
 
 def concatenate_dataframes(changed_rows, not_common_df):
     """
@@ -60,3 +62,25 @@ def create_dataset(dataset, look_back):
         data_x.append(a)
         data_y.append(dataset[i + look_back, -1])
     return np.array(data_x), np.array(data_y)
+
+
+def str_list(features, target=False):
+    out = []
+    features = [item[0] for item in features]
+    features = [item[0] for item in features] if target else features
+    for feature in features:
+        out.append(str(feature).replace("\n", ""))
+    return out
+
+
+def move_column_to_last(df, col):
+    if col in df.columns:
+        return df[list(df.columns.difference([col])) + [col]]
+    else:
+        return df
+
+
+def get_stock_data_yf(end_date, start_date, symbol):
+    stock = yf.Ticker(symbol)
+    data = stock.history(start=start_date, end=end_date)
+    return data
