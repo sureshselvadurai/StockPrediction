@@ -15,5 +15,8 @@ class Plot:
         self.ax.set_ylabel('Stock Price')
         self.ax.legend()
         self.fig.tight_layout()
-        plt.show()
+        # plt.show()
+
+    def save_plot(self, filename, file_format='png'):
+        self.fig.savefig(filename, format=file_format)
 

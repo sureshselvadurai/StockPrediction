@@ -7,7 +7,7 @@ def download_stock_data(stock_symbols, start_date, end_date):
     stock_data = {}
     for symbol in stock_symbols:
 
-        file_path = f"data_output/{symbol}_data.csv"
+        file_path = f"data_output/stock_data/{symbol}.csv"
 
         if os.path.exists(file_path):
             data = pd.read_csv(file_path, parse_dates=True)

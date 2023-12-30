@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from datetime import datetime, timedelta, timezone
-
+import os
 import yfinance as yf
 
 
@@ -84,3 +84,16 @@ def get_stock_data_yf(end_date, start_date, symbol):
     stock = yf.Ticker(symbol)
     data = stock.history(start=start_date, end=end_date)
     return data
+
+
+def clear_folder(folder_path):
+    try:
+        for file_name in os.listdir(folder_path):
+            file_path = os.path.join(folder_path, file_name)
+
+            if os.path.isfile(file_path):
+                os.remove(file_path)
+
+        print(f"All files in {folder_path} have been deleted.")
+    except Exception as e:
+        print(f"An error occurred: {e}")

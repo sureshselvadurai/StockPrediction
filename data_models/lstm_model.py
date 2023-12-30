@@ -55,7 +55,7 @@ class LSTMModel:
 
     def fit_model(self):
         self.model.fit(self.train_x, self.train_y, epochs=epochs, batch_size=1, verbose=2)
-        self.model.save(f"data_models/{self.symbol}_lstm_model.keras")
+        self.model.save(f"data_models/model/{self.symbol}.keras")
 
     def init_model(self):
         model = Sequential()
@@ -103,7 +103,7 @@ class LSTMModel:
         result_df = pd.concat([train_df, test_df])
 
         # Save the DataFrame to a CSV file
-        result_df.to_csv(f"data_output/{self.symbol}_test_train_prediction.csv", index=False)
+        result_df.to_csv(f"data_output/model/{self.symbol}_TrainTest.csv", index=False)
         self.plot_model(train_predict, test_predict)
 
     def scale_data(self):
@@ -143,21 +143,23 @@ class LSTMModel:
     def plot_predictions_train(self, data):
 
         data['Timestamp'] = pd.to_datetime(data['Time'], format='%Y-%m-%d %H:%M:%S%z')
+        data['Date'] = data['Timestamp'].dt.strftime('%Y-%m-%d')
 
-        file_path = f"data_output/{self.symbol}_data_oot.csv"
+        file_path = f"data_output/model/{self.symbol}_Oot.csv"
 
         if os.path.exists(file_path):
-            actual_data = pd.read_csv(file_path, parse_dates=True)
+            actual_data = pd.read_csv(file_path)
         else:
             actual_data = get_stock_data_yf(data['Timestamp'].max(), data['Timestamp'].min(), self.symbol)
             actual_data.to_csv(file_path)
             actual_data = actual_data.reset_index()
             actual_data = actual_data.rename(columns={'index': 'Date'})
-            actual_data['Date'] = actual_data['Date'].astype(str)
 
-        actual_data['Timestamp'] = pd.to_datetime(actual_data['Date'], format='%Y-%m-%d %H:%M:%S%z')
-        data = pd.merge(data, actual_data[['Timestamp', 'Close']], how='inner', left_on='Timestamp',
-                        right_on='Timestamp')
+        actual_data['Date'] = actual_data['Date'].astype(str)
+        actual_data['Timestamp'] = pd.to_datetime(actual_data['Date'].str[:-6], format='%Y-%m-%d %H:%M:%S')
+        actual_data['Date'] = actual_data['Timestamp'].dt.strftime('%Y-%m-%d')
+        data = pd.merge(data, actual_data[['Close', 'Date']], how='inner', left_on='Date',
+                        right_on='Date')
         data.rename(columns={'Close': 'Actual'}, inplace=True)
         data[['Time', 'Prediction', 'Actual']].to_csv(f"data_output/{self.symbol}_oot_prediction.csv")
 
@@ -168,3 +170,4 @@ class LSTMModel:
         self.plot.add_data_series(data['Time'], data['Actual'], 'Actual (Rolling)', 'black')
         if is_plot:
             self.plot.show_plot(self.symbol)
+            self.plot.save_plot(f"data_output/plot/{self.symbol}.png")

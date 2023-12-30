@@ -1,0 +1,22 @@
+look_back = 3
+epochs = 50
+train_test_split = 0.8
+days_to_predict = 14
+
+features,train,test,oot
+['Close'],2.81,3.35,11.55
+['Close', 'DayOfWeek'],2.42,2.06,4.00
+['Close', 'DayOfWeek', 'Rolling_Mean'],2.27,2.40,5.28
+['Close', 'DayOfWeek', 'Rolling_Mean', 'Rolling_Std'],2.33,2.75,2.10
+['Close', 'DayOfWeek', 'Rolling_Mean', 'Rolling_Std', 'Price_RoC'],2.11,2.59,4.37
+['Close', 'DayOfWeek', 'Rolling_Mean', 'Rolling_Std', 'Price_RoC', 'EMA'],2.2,2.47,4.31
+['Close', 'DayOfWeek', 'Rolling_Mean', 'Rolling_Std', 'Price_RoC', 'EMA', 'Short_EMA'],2.34,3.2,11.57
+['Close', 'DayOfWeek', 'Rolling_Mean', 'Rolling_Std', 'Price_RoC', 'EMA', 'Short_EMA', 'Long_EMA'],2.24,3.09,7.92
+['Close', 'DayOfWeek', 'Rolling_Mean', 'Rolling_Std', 'Price_RoC', 'EMA', 'Short_EMA', 'Long_EMA', 'MACD'],2.14,2.78,5.35
+['Close', 'DayOfWeek', 'Rolling_Mean', 'Rolling_Std', 'Price_RoC', 'EMA', 'Short_EMA', 'Long_EMA', 'MACD', 'Signal_Line'],2.8,3.24,16.51
+['Gain', 'Close', 'DayOfWeek', 'Rolling_Mean', 'Rolling_Std', 'Price_RoC', 'EMA', 'Short_EMA', 'Long_EMA', 'MACD', 'Signal_Line'],2.07,2.47,6.26
+['Loss', 'Gain', 'Close', 'DayOfWeek', 'Rolling_Mean', 'Rolling_Std', 'Price_RoC', 'EMA', 'Short_EMA', 'Long_EMA', 'MACD', 'Signal_Line'],2.01,2.34,2.96
+['Close', 'DayOfWeek', 'Rolling_Std','EMA']2.23,2.56,2.3
+['Close', 'DayOfWeek', 'Rolling_Std','EMA','Long_EMA','MACD','Gain','Loss']
+
+

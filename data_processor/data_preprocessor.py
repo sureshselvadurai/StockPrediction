@@ -1,5 +1,5 @@
 import pandas as pd
-from data_processor.features.date_features import DateFeatures
+from data_processor.features.features import Features
 
 
 class DataPreprocessor:
@@ -13,7 +13,6 @@ class DataPreprocessor:
 
     def add_features(self):
 
-        date_features = DateFeatures(self.data)
-        date_features.generate_features()
-        self.data = date_features.get_data()
-        self.data['Constant'] = 1
+        features = Features(self.data)
+        features.generate_features()
+        self.data = features.get_data()
