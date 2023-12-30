@@ -1,14 +1,18 @@
 import tensorflow as tf
 import numpy as np
 import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
 
 
 class modelEDA:
-    def __init__(self, model, xtrain, symbol, model_features):
+    def __init__(self, model, xtrain, symbol, model_features, data):
         self.model = model
         self.x_train = xtrain
         self.symbol = symbol
         self.model_features = model_features
+        self.data = data
 
     def generate_report(self):
         self.gradient_features()

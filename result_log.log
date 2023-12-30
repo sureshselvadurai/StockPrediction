@@ -3,6 +3,14 @@ epochs = 50
 train_test_split = 0.8
 days_to_predict = 14
 
+oot~:
+    1:1.43
+    3:2.68
+    6:2.79
+    10:7.61
+    12:1.66
+    15:12.01
+
 features,train,test,oot
 ['Close'],2.81,3.35,11.55
 ['Close', 'DayOfWeek'],2.42,2.06,4.00

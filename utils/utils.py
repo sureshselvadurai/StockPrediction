@@ -101,12 +101,40 @@ def get_stock_data_yf(end_date, start_date, symbol):
 
 def clear_folder(folder_path):
     try:
-        for file_name in os.listdir(folder_path):
-            file_path = os.path.join(folder_path, file_name)
+        for item_name in os.listdir(folder_path):
+            item_path = os.path.join(folder_path, item_name)
 
-            if os.path.isfile(file_path):
-                os.remove(file_path)
-
-        print(f"All files in {folder_path} have been deleted.")
+            if os.path.isfile(item_path):
+                os.remove(item_path)
+            elif os.path.isdir(item_path):
+                clear_folder(item_path)
     except Exception as e:
         print(f"An error occurred: {e}")
+
+
+def merge_csv_files(directory_path):
+    # Get a list of all CSV files in the specified directory
+    csv_files = [file for file in os.listdir(directory_path) if file.endswith('.csv')]
+
+    # Check if there are any CSV files in the directory
+    if not csv_files:
+        print("No CSV files found in the directory.")
+        return
+
+    # Create an empty DataFrame to store the merged data
+    merged_data = pd.DataFrame()
+
+    # Iterate through each CSV file and merge its data into the main DataFrame
+    for csv_file in csv_files:
+        file_path = os.path.join(directory_path, csv_file)
+        df = pd.read_csv(file_path)
+        merged_data = pd.concat([merged_data, df], ignore_index=True)
+
+    # Write the merged data to a new CSV file
+    merged_data.to_csv(f'{directory_path}/report/report.csv', index=False)
+
+
+def round_psi(value):
+    value = float(value)
+    rounded_value = round(value, 2)
+    return '' if rounded_value < 0.01 else rounded_value
