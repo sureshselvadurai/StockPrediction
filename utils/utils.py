@@ -3,6 +3,19 @@ import pandas as pd
 from datetime import datetime, timedelta, timezone
 import os
 import yfinance as yf
+import csv
+
+
+def write_dict_to_csv(my_dict, file_path):
+    # Extract keys and values from the dictionary
+    keys = list(my_dict.keys())
+    values = list(my_dict.values())
+
+    # Write the dictionary to the CSV file
+    with open(file_path, 'w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(keys)
+        writer.writerow(values)
 
 
 def concatenate_dataframes(changed_rows, not_common_df):

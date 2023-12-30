@@ -6,17 +6,18 @@ import pandas as pd
 from tensorflow.keras.models import load_model
 from utils.utils import str_list
 from utils.utils import move_column_to_last
-from config import model_features, model_target, days_to_predict, look_back, constants
+from config import model_target, days_to_predict, look_back, constants
 
 
 class PredictModel:
-    def __init__(self, symbol, data, model):
+    def __init__(self, symbol, data, model, model_features):
         self.result_df = None
         self.dates_iterations = None
         self.scaled_data = None
         self.data = data
         self.symbol = symbol
         self.train_model = model
+        self.model_features = model_features
         self.scaler, self.label_encoder = model.get_scales()
         self.model = self.model = load_model(f"data_models/model/{self.symbol}.keras")
 
@@ -27,16 +28,16 @@ class PredictModel:
         self.plot_predictions()
 
     def scale_data(self, data):
-        for column in model_features:
+        for column in self.model_features:
             if data[column].dtype == 'O':
                 data[column] = self.label_encoder.fit_transform(data[column])
 
-        model_columns = np.concatenate((model_features, [model_target]))[
-            np.unique(np.concatenate((model_features, [model_target])), return_index=True)[1]]
+        model_columns = np.concatenate((self.model_features, [model_target]))[
+            np.unique(np.concatenate((self.model_features, [model_target])), return_index=True)[1]]
         data = data[model_columns]
         data = move_column_to_last(data, model_target)
 
-        for feature in model_features:
+        for feature in self.model_features:
             data[feature] = self.scaler[feature].fit_transform(data[feature].values.reshape(-1, 1))
 
         return data.dropna()
@@ -72,7 +73,7 @@ class PredictModel:
             new_data['Date'] = date
 
             predict_df = pd.concat([predict_df, new_data], ignore_index=True)
-            predict_df = predict_df[model_features+constants]
+            predict_df = predict_df[self.model_features+constants]
             features.append(model_data)
             prediction.append(oot_predict)
 

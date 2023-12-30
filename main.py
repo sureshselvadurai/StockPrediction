@@ -15,12 +15,13 @@ def main():
         # Data Preprocessing
         data_preprocessor = DataPreprocessor(symbol, data)
         data = data_preprocessor.preprocess_data()
+        model_features = data_preprocessor.get_model_features()
 
         # Create model
-        model = LSTMModel(symbol, data)
+        model = LSTMModel(symbol, data, model_features)
         model.create_model()
 
-        predict = PredictModel(symbol, data, model)
+        predict = PredictModel(symbol, data, model, model_features)
         predict.predict()
 
 

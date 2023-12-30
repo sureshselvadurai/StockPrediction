@@ -7,13 +7,14 @@ import pandas as pd
 import os
 from utils.utils import create_dataset, move_column_to_last
 from utils.plot_data import Plot
-from utils.utils import get_stock_data_yf
-from config import model_features, model_target, train_test_split, look_back, epochs, is_plot
+from utils.utils import get_stock_data_yf, write_dict_to_csv
+from config import model_target, train_test_split, look_back, epochs, is_plot
+from data_processor.EDA.model_EDA import modelEDA
 
 
 class LSTMModel:
 
-    def __init__(self, symbol, data):
+    def __init__(self, symbol, data, model_features):
         self.plot = None
         self.scaled_data = None
         self.test_y = None
@@ -24,10 +25,13 @@ class LSTMModel:
 
         self.data = data
         self.symbol = symbol
+        self.model_features = model_features
+        self.report = {}
+
         self.init_model()
         self.label_encoder = LabelEncoder()
         scale_key = {}
-        for feature in model_features:
+        for feature in self.model_features:
             scale_key[feature] = MinMaxScaler(feature_range=(0, 1))
         self.scaler = scale_key
 
@@ -56,10 +60,15 @@ class LSTMModel:
     def fit_model(self):
         self.model.fit(self.train_x, self.train_y, epochs=epochs, batch_size=1, verbose=2)
         self.model.save(f"data_models/model/{self.symbol}.keras")
+        eda = modelEDA(self.model, self.train_x, self.symbol, self.model_features)
+        eda.generate_report()
 
     def init_model(self):
+        self.report["symbol"] = self.symbol
+        self.report["model_features"] = " | ".join(self.model_features)
+
         model = Sequential()
-        model.add(LSTM(50, input_shape=(look_back, len(model_features))))
+        model.add(LSTM(50, input_shape=(look_back, len(self.model_features))))
         model.add(Dense(1))
         model.compile(loss='mean_squared_error', optimizer='adam')
         self.model = model
@@ -78,10 +87,12 @@ class LSTMModel:
         # Calculate RMSE for training data_processor
         train_score = np.sqrt(mean_squared_error(train_y[:, -1], train_predict[:, -1]))
         print("Train RMSE: {:.2f}".format(train_score))
+        self.report["train_score"] = train_score
 
         # Calculate RMSE for testing data_processor
         test_score = np.sqrt(mean_squared_error(test_y[:, -1], test_predict[:, -1]))
         print("Test RMSE: {:.2f}".format(test_score))
+        self.report["test_score"] = test_score
 
         # Create a DataFrame to store the results
         columns = ['Tag', 'Prediction', 'Features', 'Time']
@@ -108,15 +119,15 @@ class LSTMModel:
 
     def scale_data(self):
         data = self.data.copy()
-        for column in model_features:
+        for column in self.model_features:
             if data[column].dtype == 'O':
                 data[column] = self.label_encoder.fit_transform(data[column])
 
-        model_columns = np.concatenate((model_features, [model_target]))[
-            np.unique(np.concatenate((model_features, [model_target])), return_index=True)[1]]
+        model_columns = np.concatenate((self.model_features, [model_target]))[
+            np.unique(np.concatenate((self.model_features, [model_target])), return_index=True)[1]]
         data = data[model_columns]
         data = move_column_to_last(data, model_target)
-        for feature in model_features:
+        for feature in self.model_features:
             data[feature] = self.scaler[feature].fit_transform(data[feature].values.reshape(-1, 1))
         self.scaled_data = data.dropna()
 
@@ -165,9 +176,11 @@ class LSTMModel:
 
         oot_score = np.sqrt(mean_squared_error(data['Actual'], data['Prediction']))
         print("OOT RMSE: {:.2f}".format(oot_score))
+        self.report["oot_score"] = oot_score
 
         self.plot.add_data_series(data['Time'], data['Prediction'], 'Predicted (Rolling)', 'purple', 'dashed')
         self.plot.add_data_series(data['Time'], data['Actual'], 'Actual (Rolling)', 'black')
+        write_dict_to_csv(self.report, f"data_output/report/{self.symbol}.csv")
         if is_plot:
             self.plot.show_plot(self.symbol)
             self.plot.save_plot(f"data_output/plot/{self.symbol}.png")
