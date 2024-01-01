@@ -26,6 +26,7 @@ def main():
         predict = PredictModel(symbol, data, model, model_features)
         predict.predict()
     merge_csv_files('data_output/report')
+    merge_csv_files('data_output/model')
 
 
 if __name__ == "__main__":

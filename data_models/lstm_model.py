@@ -12,6 +12,8 @@ from utils.utils import get_stock_data_yf, write_dict_to_csv
 from config import model_target, train_test_split, look_back, epochs, is_plot, to_predict
 from data_processor.EDA.model_EDA import modelEDA
 from data_processor.EDA.EDA import EDA
+from sklearn.model_selection import GridSearchCV
+
 
 
 class LSTMModel:
@@ -38,17 +40,35 @@ class LSTMModel:
             scale_key[feature] = MinMaxScaler(feature_range=(0, 1))
         self.scaler = scale_key
 
-    def get_model(self):
-        return self.model
+    def init_model(self):
+        self.report["symbol"] = self.symbol
+        self.report["model_features"] = " | ".join(self.model_features)
 
-    def get_scales(self):
-        return self.scaler, self.label_encoder
+        model = Sequential()
+        model.add(LSTM(100, input_shape=(look_back, len(self.model_features))))
+        model.add(Dense(1))
+        model.compile(loss='mean_squared_error', optimizer='adam')
+        self.model = model
 
     def create_model(self):
         self.scale_data()
         self.generate_test_train()
         self.fit_model()
         self.generate_model_performance()
+
+    def scale_data(self):
+        data = self.data.copy()
+        for column in self.model_features:
+            if data[column].dtype == 'O':
+                data[column] = self.label_encoder.fit_transform(data[column])
+
+        model_columns = np.concatenate((self.model_features, [model_target]))[
+            np.unique(np.concatenate((self.model_features, [model_target])), return_index=True)[1]]
+        data = data[model_columns]
+        data = move_column_to_last(data, model_target)
+        for feature in self.model_features:
+            data[feature] = self.scaler[feature].fit_transform(data[feature].values.reshape(-1, 1))
+        self.scaled_data = data.dropna()
 
     def generate_test_train(self):
         train_size = int(len(self.scaled_data) * train_test_split)
@@ -69,15 +89,6 @@ class LSTMModel:
         eda = modelEDA(self.model, self.train_x, self.symbol, self.model_features, self.data)
         eda.generate_report()
 
-    def init_model(self):
-        self.report["symbol"] = self.symbol
-        self.report["model_features"] = " | ".join(self.model_features)
-
-        model = Sequential()
-        model.add(LSTM(50, input_shape=(look_back, len(self.model_features))))
-        model.add(Dense(1))
-        model.compile(loss='mean_squared_error', optimizer='adam')
-        self.model = model
 
     def generate_model_performance(self):
         train_predict = self.model.predict(self.train_x)
@@ -122,19 +133,7 @@ class LSTMModel:
 
         self.plot_model(train_predict, test_predict)
 
-    def scale_data(self):
-        data = self.data.copy()
-        for column in self.model_features:
-            if data[column].dtype == 'O':
-                data[column] = self.label_encoder.fit_transform(data[column])
 
-        model_columns = np.concatenate((self.model_features, [model_target]))[
-            np.unique(np.concatenate((self.model_features, [model_target])), return_index=True)[1]]
-        data = data[model_columns]
-        data = move_column_to_last(data, model_target)
-        for feature in self.model_features:
-            data[feature] = self.scaler[feature].fit_transform(data[feature].values.reshape(-1, 1))
-        self.scaled_data = data.dropna()
 
     def plot_model(self, train_predict, test_predict):
         # Plotting training and testing data_processor on the same plot
@@ -187,7 +186,8 @@ class LSTMModel:
             data.rename(columns={'Close': 'Actual'}, inplace=True)
 
         data['Tag'] = 'Prediction'
-        self.save_report = pd.concat([data[['Tag', 'Prediction', 'Actual', 'Time']],self.save_report])
+        self.save_report = pd.concat([data[['Tag', 'Prediction', 'Actual', 'Time']], self.save_report])
+        self.save_report["Stock"] = self.symbol
         self.save_report.to_csv(f"data_output/model/{self.symbol}.csv")
 
         self.plot.add_data_series(data['Time'], data['Prediction'], 'Predicted (Rolling)', 'purple', 'dashed')
@@ -213,3 +213,9 @@ class LSTMModel:
         eda = EDA(data, self.symbol)
         is_oot_stable, unstable_oot_features = eda.feature_stability(data, 15, self.model_features)
         self.report['is_oot_stable'], self.report['unstable_oot_features'] = is_oot_stable, unstable_oot_features
+
+    def get_model(self):
+        return self.model
+
+    def get_scales(self):
+        return self.scaler, self.label_encoder
