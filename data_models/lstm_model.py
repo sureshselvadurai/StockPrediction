@@ -82,7 +82,7 @@ class LSTMModel:
 
     def fit_model(self):
         self.model.fit(self.train_x, self.train_y, epochs=epochs, batch_size=1, verbose=2)
-        self.model.save(f"data_models/model/{self.symbol}.keras")
+        self.model.save(f"data_output/keras/{self.symbol}.keras")
 
         self.report['train_size'] = len(self.train_x)
         self.report['feature_size'] = len(self.model_features)

@@ -19,7 +19,7 @@ class PredictModel:
         self.train_model = model
         self.model_features = model_features
         self.scaler, self.label_encoder = model.get_scales()
-        self.model = self.model = load_model(f"data_models/model/{self.symbol}.keras")
+        self.model = self.model = load_model(f"data_output/keras/{self.symbol}.keras")
 
     def predict(self):
         self.scaled_data = self.scale_data(self.data.copy())

@@ -46,15 +46,15 @@ model_features = [
 model_target = 'Close'
 constants = ['Date']
 
-correlation_bar = 0.8
+correlation_bar = 0.0
 look_back = 10
-epochs = 10
+epochs = 100
 train_test_split = 0.8
 
 days_to_predict = 10
 start_date = "2022-12-01"
 end_date = "2023-12-13"
-clearPrevious = False
+clearPrevious = True
 to_predict = False
 
 is_plot = True

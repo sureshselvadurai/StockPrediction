@@ -18,7 +18,8 @@ def download_stock_data(stock_symbols, start_date, end_date):
             data['Date'] = data['Date'].astype(str)
             data.to_csv(file_path)
 
-        stock_data[symbol] = data
+        if not data.empty:
+            stock_data[symbol] = data
 
     return stock_data
 

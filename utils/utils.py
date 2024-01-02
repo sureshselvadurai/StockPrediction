@@ -138,3 +138,53 @@ def round_psi(value):
     value = float(value)
     rounded_value = round(value, 2)
     return '' if rounded_value < 0.01 else rounded_value
+
+
+def generate_report():
+
+    df = pd.read_csv("data_output/model/report/report.csv")
+    features = pd.read_csv("data_output/report/report/report.csv")
+    features = features.drop("model_features", axis=1)
+
+    prediction_df = df[df['Tag'] == 'Prediction']
+    prediction_df = prediction_df.copy()
+
+    prediction_df['Time'] = pd.to_datetime(prediction_df['Time'])
+    prediction_df = prediction_df.sort_values(by='Time')
+
+    prediction_df.loc[:, 'Next_Day_Prediction'] = prediction_df.groupby('Stock')['Prediction'].shift(-1)
+    prediction_df = prediction_df.drop(prediction_df[prediction_df.groupby('Stock').cumcount(ascending=False) == 0].index)
+    prediction_df['Next_Day_Change'] = prediction_df['Next_Day_Prediction'] - prediction_df['Prediction']
+    prediction_df['Next_Day_Change_Positive'] = (prediction_df['Next_Day_Change'] > 0).astype(int)
+
+    # Group by Stock and calculate the required metrics
+    report_df = prediction_df.groupby('Stock').agg(
+        Num_Days=('Stock', 'count'),
+        Num_Days_Positive=('Next_Day_Change_Positive', 'sum'),
+        Num_Days_Negative=('Next_Day_Change_Positive', lambda x: len(x) - sum(x)),
+        Avg_Positive_Change=('Next_Day_Change', lambda x: x[x > 0].mean()),
+        Avg_Negative_Change=('Next_Day_Change', lambda x: x[x < 0].mean())
+    ).reset_index()
+    merged_df = pd.merge(report_df, features, how='left', left_on='Stock', right_on='symbol')
+
+    # Save the report to a CSV file
+    merged_df = merged_df.drop("symbol", axis=1)
+    merged_df.to_csv("data_output/report/report/report.csv", index=False)
+
+    # Display the report
+    print(report_df)
+
+
+def save_error_log(error_log):
+
+    csv_file_path = 'error_log.csv'
+    fields = ['Symbol', 'Error Message']
+
+    with open(csv_file_path, mode='w', newline='') as csv_file:
+        writer = csv.DictWriter(csv_file, fieldnames=fields)
+
+        # Write the header
+        writer.writeheader()
+
+        # Write the error details
+        writer.writerows(error_log)
