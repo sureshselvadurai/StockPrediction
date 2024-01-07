@@ -8,10 +8,12 @@ from utils.utils import clear_folder, merge_csv_files, generate_report, save_err
 
 def main():
     error_log = []
-    data_loader = DataLoader(csv_file)
-    stock_data = data_loader.load_data(start_date, end_date)
     clear_folder("data_output/") if clearPrevious else None
     clear_folder("data_processor/EDA/report/") if clearPrevious else None
+
+    data_loader = DataLoader(csv_file)
+    stock_data = data_loader.load_data(start_date, end_date)
+
     total_stocks = len(stock_data)
     for index, (symbol, data) in enumerate(stock_data.items(), start=1):
         try:

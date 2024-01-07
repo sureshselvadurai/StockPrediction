@@ -9,11 +9,10 @@ import os
 from utils.utils import create_dataset, move_column_to_last
 from utils.plot_data import Plot
 from utils.utils import get_stock_data_yf, write_dict_to_csv
-from config import model_target, train_test_split, look_back, epochs, is_plot, to_predict
+from config import model_target, train_test_split, look_back, epochs, is_plot, to_predict, constants
 from data_processor.EDA.model_EDA import modelEDA
 from data_processor.EDA.EDA import EDA
 from sklearn.model_selection import GridSearchCV
-
 
 
 class LSTMModel:
@@ -64,7 +63,7 @@ class LSTMModel:
 
         model_columns = np.concatenate((self.model_features, [model_target]))[
             np.unique(np.concatenate((self.model_features, [model_target])), return_index=True)[1]]
-        data = data[model_columns]
+        # data = data[model_columns]
         data = move_column_to_last(data, model_target)
         for feature in self.model_features:
             data[feature] = self.scaler[feature].fit_transform(data[feature].values.reshape(-1, 1))
@@ -72,9 +71,11 @@ class LSTMModel:
 
     def generate_test_train(self):
         train_size = int(len(self.scaled_data) * train_test_split)
-        train, test = self.scaled_data[0:train_size], self.scaled_data[train_size:len(self.scaled_data)]
+        train, test = self.scaled_data[0:train_size][self.model_features], self.scaled_data[train_size-look_back:len(self.scaled_data)][self.model_features]
         train_x, train_y = create_dataset(train.values, look_back)
         test_x, test_y = create_dataset(test.values, look_back)
+        self.scaled_data = self.scaled_data.iloc[look_back:]
+
         self.train_x = train_x
         self.train_y = train_y
         self.test_x = test_x
@@ -88,7 +89,6 @@ class LSTMModel:
         self.report['feature_size'] = len(self.model_features)
         eda = modelEDA(self.model, self.train_x, self.symbol, self.model_features, self.data)
         eda.generate_report()
-
 
     def generate_model_performance(self):
         train_predict = self.model.predict(self.train_x)
@@ -116,24 +116,21 @@ class LSTMModel:
         train_df = pd.DataFrame({'Tag': 'Train',
                                  'Prediction': train_predict[:, -1],
                                  'Actual': train_y[:, -1],
-                                 'Features': self.train_x[:, :, :].tolist(),
-                                 'Time': self.data['Date'][look_back - 1:look_back - 1 + len(train_y)]})
+                                 'Features': self.train_x[:, :, :].tolist()
+                                 })
 
         test_df = pd.DataFrame({'Tag': 'Test',
                                 'Prediction': test_predict[:, -1],
                                 'Actual': test_y[:, -1],
-                                'Features': self.test_x[:, :, :].tolist(),
-                                'Time': self.data['Date'][
-                                        look_back - 1 + len(train_y) + look_back - 1:look_back - 1 + len(
-                                            train_y) + look_back - 1 + len(test_y)]})
+                                'Features': self.test_x[:, :, :].tolist()
+                                })
 
         # Concatenate train and test DataFrames
         result_df = pd.concat([train_df, test_df])
+        result_df['Time'] = self.scaled_data['Date'].tolist()
         self.save_report = result_df[['Tag', 'Prediction', 'Actual', 'Time']]
 
         self.plot_model(train_predict, test_predict)
-
-
 
     def plot_model(self, train_predict, test_predict):
         # Plotting training and testing data_processor on the same plot
@@ -188,7 +185,12 @@ class LSTMModel:
         data['Tag'] = 'Prediction'
         self.save_report = pd.concat([data[['Tag', 'Prediction', 'Actual', 'Time']], self.save_report])
         self.save_report["Stock"] = self.symbol
-        self.save_report.to_csv(f"data_output/model/{self.symbol}.csv")
+        self.save_report['Time'] = pd.to_datetime(self.save_report['Time'])
+
+        # Sort by "Stock" and then by "Time" in descending order
+        sorted_df = self.save_report.sort_values(by=['Stock', 'Time'], ascending=[True, False])
+
+        sorted_df.to_csv(f"data_output/model/{self.symbol}.csv", index=False)
 
         self.plot.add_data_series(data['Time'], data['Prediction'], 'Predicted (Rolling)', 'purple', 'dashed')
         self.plot.add_data_series(data['Time'], data['Actual'], 'Actual (Rolling)', 'black')

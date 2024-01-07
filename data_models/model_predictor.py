@@ -47,6 +47,7 @@ class PredictModel:
         start_date_str = self.data['Date'].iloc[-1]
         start_date = datetime.strptime(start_date_str, '%Y-%m-%d %H:%M:%S%z')
         predict_to_date = start_date + timedelta(days=days_to_predict)
+        print("Predicted Until  : " + str(predict_to_date))
         self.dates_iterations = generate_close_timestamps(start_date, predict_to_date)
 
     def plot_predictions(self):
