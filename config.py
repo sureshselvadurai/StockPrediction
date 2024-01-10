@@ -46,16 +46,16 @@ model_features = [
 model_target = 'Close'
 constants = ['Date']
 
-correlation_bar = 0.7
+correlation_bar = 0.6
 look_back = 5
-epochs = 100
+epochs = 101
 train_test_split = 0.8
 
 days_to_predict = 15
 start_date = "2021-12-01"
-end_date = "2023-12-15"
+end_date = "2024-01-07"
 clearPrevious = True
-to_predict = False
+to_predict = True
 
 is_plot = True
 csv_file = "data/stocks.csv"
