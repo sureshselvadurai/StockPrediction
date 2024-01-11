@@ -48,7 +48,7 @@ constants = ['Date']
 
 correlation_bar = 0.6
 look_back = 5
-epochs = 101
+epochs = 102
 train_test_split = 0.8
 
 days_to_predict = 15
