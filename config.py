@@ -46,7 +46,7 @@ model_features = [
 model_target = 'Close'
 constants = ['Date']
 
-correlation_bar = 0.6
+correlation_bar = 0.7
 look_back = 5
 epochs = 105
 train_test_split = 0.8
