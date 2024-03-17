@@ -1,0 +1,2 @@
+symbol,model_features,train_size,feature_size,train_score,test_score,oot_score,is_oot_stable,unstable_oot_features
+ACI,Close | Cumulative_Returns | Square_Root_Close | Log_Close | Close_Squared | Close_Cubed | Close_Inverse | Moving_Average_3 | Moving_Average_5 | EMA | Short_EMA | Rolling_Mean | Moving_Average_10 | Lower_Band | Upper_Band | Moving_Average_15 | Long_EMA | Expanding_Mean,199,18,0.02452964572289099,0.20731854966099958,0.13834312430602716,True,[]

@@ -1,0 +1,2 @@
+symbol,model_features,train_size,feature_size,train_score,test_score,oot_score,is_oot_stable,unstable_oot_features
+EXAS,Close | Cumulative_Returns | Square_Root_Close | Log_Close | Moving_Average_3 | Close_Inverse | Moving_Average_5 | EMA | Short_EMA | Rolling_Mean | Moving_Average_10 | Upper_Band | Moving_Average_15 | Lower_Band | Long_EMA | Expanding_Mean,199,16,0.4646321233883702,0.3930395712916515,0.8940306108070595,False,"['Close', 'Cumulative_Returns', 'Moving_Average_3', 'Close_Inverse', 'Moving_Average_5', 'Upper_Band', 'Lower_Band']"

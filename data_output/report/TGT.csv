@@ -1,0 +1,2 @@
+symbol,model_features,train_size,feature_size,train_score,test_score,oot_score,is_oot_stable,unstable_oot_features
+TGT,Close | Cumulative_Returns | Square_Root_Close | Log_Close | Moving_Average_3 | Close_Inverse | Moving_Average_5 | EMA | Short_EMA | Rolling_Mean | Moving_Average_10 | Upper_Band | Moving_Average_15 | Lower_Band | Long_EMA | Expanding_Mean,199,16,0.45914221224188384,1.5709538159822616,1.5970002192181887,True,[]

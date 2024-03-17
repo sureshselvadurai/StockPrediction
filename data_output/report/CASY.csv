@@ -1,0 +1,2 @@
+symbol,model_features,train_size,feature_size,train_score,test_score,oot_score,is_oot_stable,unstable_oot_features
+CASY,Close | Cumulative_Returns | Square_Root_Close | Log_Close | Close_Squared | Close_Inverse | Moving_Average_3 | Moving_Average_5 | EMA | Upper_Band | Short_EMA | Rolling_Mean | Moving_Average_10 | Long_EMA | Moving_Average_15 | Lower_Band | Expanding_Mean,199,17,0.4213302741166326,2.448150592321756,6.024420324937365,True,[]

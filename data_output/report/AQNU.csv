@@ -1,0 +1,2 @@
+symbol,model_features,train_size,feature_size,train_score,test_score,oot_score,is_oot_stable,unstable_oot_features
+AQNU,Close | Cumulative_Returns | Square_Root_Close | Log_Close | Moving_Average_3 | Close_Inverse | Moving_Average_5 | EMA | Short_EMA | Rolling_Mean | Moving_Average_10 | Lower_Band | Moving_Average_15 | Upper_Band | Long_EMA | Expanding_Mean,199,16,0.042117109885635655,0.07369079233732004,1.1607777839140143,True,[]

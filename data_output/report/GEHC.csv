@@ -1,0 +1,2 @@
+symbol,model_features,train_size,feature_size,train_score,test_score,oot_score,is_oot_stable,unstable_oot_features
+GEHC,Close | Cumulative_Returns | Square_Root_Close | Log_Close | Close_Squared | Close_Inverse | Moving_Average_3 | Moving_Average_5 | EMA | Short_EMA | Rolling_Mean | Moving_Average_10 | Upper_Band | Moving_Average_15 | Lower_Band | Long_EMA | Expanding_Mean,191,17,0.19547505999853246,0.23415977494716342,0.7295869704825725,False,['Close_Squared']

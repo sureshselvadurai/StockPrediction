@@ -1,0 +1,17 @@
+,Feature,Importance
+15,Expanding_Mean,0.08216242
+0,Close,0.004911469
+12,Moving_Average_15,0.00466363
+11,Lower_Band,0.0042775525
+14,Long_EMA,0.0039544445
+5,Moving_Average_3,0.0038930052
+13,Upper_Band,0.0033085025
+10,Moving_Average_10,0.0031907253
+6,Moving_Average_5,0.0023011565
+3,Log_Close,0.002271053
+7,EMA,0.0020559705
+1,Cumulative_Returns,0.0020040597
+4,Close_Inverse,0.0014659845
+9,Rolling_Mean,0.0013618357
+2,Square_Root_Close,0.0012967468
+8,Short_EMA,0.00078234123

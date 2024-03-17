@@ -1,0 +1,2 @@
+symbol,model_features,train_size,feature_size,train_score,test_score,oot_score,is_oot_stable,unstable_oot_features
+GIS,Cumulative_Returns | Close | Square_Root_Close | Log_Close | Close_Squared | Moving_Average_3 | Close_Inverse | Close_Cubed | Moving_Average_5 | EMA | Short_EMA | Rolling_Mean | Moving_Average_10 | Lower_Band | Moving_Average_15 | Upper_Band | Long_EMA | Expanding_Mean,199,18,0.1262830886012211,0.1470924356083547,0.493578591448795,True,[]

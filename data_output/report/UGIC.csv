@@ -1,0 +1,2 @@
+symbol,model_features,train_size,feature_size,train_score,test_score,oot_score,is_oot_stable,unstable_oot_features
+UGIC,Cumulative_Returns | Close | Square_Root_Close | Log_Close | Moving_Average_3 | Close_Inverse | Moving_Average_5 | EMA | Short_EMA | Lower_Band | Rolling_Mean | Moving_Average_10 | Moving_Average_15 | Long_EMA | Upper_Band | Expanding_Mean,199,16,0.4177015750308345,1.7823526088955044,4.1896314596084006,True,[]

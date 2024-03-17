@@ -1,0 +1,2 @@
+symbol,model_features,train_size,feature_size,train_score,test_score,oot_score,is_oot_stable,unstable_oot_features
+MRNA,Close | Cumulative_Returns | Square_Root_Close | Moving_Average_3 | Log_Close | EMA | Close_Inverse | Short_EMA | Rolling_Mean | Moving_Average_10 | Moving_Average_15 | Long_EMA | Upper_Band | Expanding_Mean,199,14,1.9728023019134107,5.149670698228022,4.814063486118263,False,['Close_Inverse']

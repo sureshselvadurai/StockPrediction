@@ -1,0 +1,2 @@
+symbol,model_features,train_size,feature_size,train_score,test_score,oot_score,is_oot_stable,unstable_oot_features
+NBIX,Close | Cumulative_Returns | Square_Root_Close | Close_Squared | Log_Close | Moving_Average_3 | Close_Cubed | Close_Inverse | Moving_Average_5 | EMA | Short_EMA | Rolling_Mean | Moving_Average_10 | Upper_Band | Moving_Average_15 | Lower_Band | Long_EMA | Expanding_Mean,199,18,0.0935716165974952,1.4032316401052485,16.826765545978603,False,"['Close_Squared', 'Close_Cubed']"

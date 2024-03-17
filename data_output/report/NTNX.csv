@@ -1,0 +1,2 @@
+symbol,model_features,train_size,feature_size,train_score,test_score,oot_score,is_oot_stable,unstable_oot_features
+NTNX,Cumulative_Returns | Close | Moving_Average_3 | Square_Root_Close | Moving_Average_5 | EMA | Short_EMA | Upper_Band | Rolling_Mean | Moving_Average_10 | Log_Close | Long_EMA | Moving_Average_15 | Lower_Band | Expanding_Mean | Close_Inverse,199,16,1.138095019202214,1.5900132622380823,31.282876005631007,False,"['Cumulative_Returns', 'Close', 'Moving_Average_3', 'Square_Root_Close', 'Upper_Band', 'Lower_Band', 'Close_Inverse']"

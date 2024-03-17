@@ -1,0 +1,2 @@
+symbol,model_features,train_size,feature_size,train_score,test_score,oot_score,is_oot_stable,unstable_oot_features
+DD,Cumulative_Returns | Close | Square_Root_Close | Close_Squared | Log_Close | Close_Inverse | Moving_Average_3 | Moving_Average_5 | EMA | Lower_Band | Short_EMA | Rolling_Mean | Moving_Average_10 | Moving_Average_15 | Long_EMA | Upper_Band | Expanding_Mean,199,17,0.09260316903165473,0.14393455562700844,1.0236631877601008,True,[]

@@ -1,0 +1,2 @@
+symbol,model_features,train_size,feature_size,train_score,test_score,oot_score,is_oot_stable,unstable_oot_features
+CRWD,Close | Cumulative_Returns | Square_Root_Close | Moving_Average_3 | Moving_Average_5 | EMA | Short_EMA | Upper_Band | Rolling_Mean | Moving_Average_10 | Log_Close | Long_EMA | Moving_Average_15 | Lower_Band | Close_Inverse | Expanding_Mean,199,16,1.1789388010956041,22.583091822541647,43.13689560433033,True,[]
